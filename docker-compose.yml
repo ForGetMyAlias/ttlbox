@@ -1,0 +1,19 @@
+services:
+  ttlbox:
+    build: .
+    ports: ["127.0.0.1:8080:8080"]   # expose via a TLS reverse proxy, not directly
+    volumes: ["data:/data"]
+    environment:
+      UPLOAD_TOKEN: ${UPLOAD_TOKEN:?set a token of 16+ chars}
+      BASE_URL: ${BASE_URL:-}          # e.g. https://files.example.com
+      TRUST_PROXY: "true"              # only because a proxy is in front
+      MAX_SIZE_MB: 50
+      MAX_TOTAL_MB: 5000               # disk quota for all uploads
+      DEFAULT_TTL: 24h
+      MAX_TTL: 7d
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+volumes:
+  data:
